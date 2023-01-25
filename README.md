@@ -1,4 +1,14 @@
-# KO Service Example
+# KO Vault Service Example
+
+## Vault
+
+```bash
+vault server -dev -dev-root-token-id root -dev-listen-address 0.0.0.0:8200
+export VAULT_ADDR=http://0.0.0.0:8200
+vault login root
+colima start -c 6 -m 16 -k
+export EXTERNAL_VAULT_ADDR=192.168.5.2
+```
 
 ## KO
 
@@ -9,3 +19,8 @@ ko apply -f .
 k logs -l app=hello -f
 k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:8080/Barney
 ```
+
+## References
+
+- <https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-external-vault>
+- <https://github.com/hashicorp/hello-vault-go>
