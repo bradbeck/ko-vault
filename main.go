@@ -11,8 +11,18 @@ import (
 
 func main() {
 	log.Default().Println("Starting...")
+	vaultInteraction()
+	log.Println("Request: :8080/<name>")
+	log.Println("Listening on :8080...")
+
+	http.HandleFunc("/", HelloServer)
+	http.ListenAndServe(":8080", nil)
+}
+
+func vaultInteraction() {
+	log.Println("Start Vault..")
 	config := vault.DefaultConfig()
-	config.Address = "http://192.168.5.2:8200"
+	config.Address = "http://external-vault:8200"
 
 	client, err := vault.NewClient(config)
 	if err != nil {
@@ -50,12 +60,7 @@ func main() {
 	}
 
 	log.Println("Access granted!")
-	log.Println("Request: :8080/<name>")
-
-	log.Println("Listening on :8080...")
-
-	http.HandleFunc("/", HelloServer)
-	http.ListenAndServe(":8080", nil)
+	log.Println("Stop Vault..")
 }
 
 func HelloServer(w http.ResponseWriter, r *http.Request) {
