@@ -22,41 +22,47 @@ func main() {
 func vaultInteraction() {
 	log.Println("Start Vault..")
 	config := vault.DefaultConfig()
-	config.Address = "http://external-vault:8200"
+	// config.Address = "http://external-vault:8200"
 
 	client, err := vault.NewClient(config)
 	if err != nil {
-		log.Fatalf("unable to initialize Vault client: %v", err)
+		log.Printf("unable to initialize Vault client: %v", err)
+		return
 	}
 
 	client.SetToken("root")
 	secretData := map[string]interface{}{
-		"password": "Hashi123",
+		"username": "appuser",
+		"password": "suP3rsec(et!",
 	}
 
 	ctx := context.Background()
 
 	// Write a secret
-	_, err = client.KVv2("secret").Put(ctx, "my-secret-password", secretData)
-	if err != nil {
-		log.Fatalf("unable to write secret: %v", err)
-	}
+	// _, err = client.KVv2("secret/hello").Put(ctx, "config", secretData)
+	// if err != nil {
+	// 	log.Printf("unable to write secret: %v", err)
+	// 	return
+	// }
 
 	log.Println("Secret written successfully.")
 
 	// Read a secret
-	secret, err := client.KVv2("secret").Get(ctx, "my-secret-password")
+	secret, err := client.KVv2("secret/hello").Get(ctx, "config")
 	if err != nil {
-		log.Fatalf("unable to read secret: %v", err)
+		log.Printf("unable to read secret: %v", err)
+		return
 	}
 
 	value, ok := secret.Data["password"].(string)
 	if !ok {
-		log.Fatalf("value type assertion failed: %T %#v", secret.Data["password"], secret.Data["password"])
+		log.Printf("value type assertion failed: %T %#v", secret.Data["password"], secret.Data["password"])
+		return
 	}
 
-	if value != "Hashi123" {
-		log.Fatalf("unexpected password value %q retrieved from vault", value)
+	if value != secretData["password"] {
+		log.Printf("unexpected %q value %q retrieved from vault", secretData["password"], value)
+		return
 	}
 
 	log.Println("Access granted!")

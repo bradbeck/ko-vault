@@ -4,6 +4,8 @@ go 1.19
 
 require github.com/hashicorp/vault/api v1.8.3
 
+require github.com/kr/pretty v0.2.1 // indirect
+
 require (
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
