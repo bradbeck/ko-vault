@@ -7,6 +7,7 @@ vault server -dev -dev-root-token-id root -dev-listen-address 0.0.0.0:8200
 export VAULT_ADDR='http://0.0.0.0:8200'
 vault login root
 colima start -c 6 -m 16 -k
+export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
 helm install vault hashicorp/vault --set "injector.externalVaultAddr=http://external-vault:8200"
