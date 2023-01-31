@@ -46,7 +46,7 @@ ko apply -f .
 k logs -l app=hello -c hello -f --tail=-1
 k logs -l app=hello -c vault-agent-init -f --tail=-1
 k logs -l app=hello -c vault-agent -f --tail=-1
-k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:8080/Barney
+k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:8080/hello/config
 ```
 
 ## References
@@ -54,5 +54,12 @@ k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:808
 - <https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-external-vault>
 - <https://github.com/hashicorp/hello-vault-go>
 - <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/annotations>
-- <https://developer.hashicorp.com/vault/tutorials/kubernetes/agent-kubernetes>
 - <https://developer.hashicorp.com/vault/docs/auth/kubernetes>
+- <https://developer.hashicorp.com/vault/docs/agent/autoauth>
+- <https://developer.hashicorp.com/vault/tutorials/kubernetes/agent-kubernetes>
+- <https://developer.hashicorp.com/vault/tutorials/kubernetes/agent-kubernetes#start-vault-agent-with-auto-auth>
+- <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples>
+- <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples#configmap-example>
+- <https://github.com/MikeDafi/Nielsen-Internship---React-Flask-Hashicorp-Vault/tree/main/vaulthelm/templates>
+- <https://github.com/openlab-red/hashicorp-vault-for-openshift/tree/master/examples/golang-example>
+- <https://github.com/ConsenSys/quorum-key-manager-helm/blob/main/templates/config-agents.yaml>

@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	vault "github.com/hashicorp/vault/api"
 )
 
 func main() {
-	log.Default().Println("Starting...")
-	vaultInteraction()
+	// readSecret("hello/config")
 	log.Println("Request: :8080/<name>")
 	log.Println("Listening on :8080...")
 
@@ -19,57 +20,46 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func vaultInteraction() {
-	log.Println("Start Vault..")
+func HelloServer(w http.ResponseWriter, r *http.Request) {
+	log.Default().Printf("Request: %s\n", r.URL.Path[1:])
+	fmt.Fprintf(w, "%s", readSecret(r.URL.Path[1:]))
+}
+
+func readSecret(path string) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintln("Start Vault.."))
 	config := vault.DefaultConfig()
-	// config.Address = "http://external-vault:8200"
 
 	client, err := vault.NewClient(config)
 	if err != nil {
-		log.Printf("unable to initialize Vault client: %v", err)
-		return
+		sb.WriteString(fmt.Sprintf("unable to initialize Vault client: %v", err))
+		return sb.String()
 	}
 
-	client.SetToken("root")
-	secretData := map[string]interface{}{
-		"username": "appuser",
-		"password": "suP3rsec(et!",
+	token, err := readToken("/vault/secrets/token")
+	if err != nil {
+		sb.WriteString(fmt.Sprintf("unable to read token: %v", err))
+		return sb.String()
 	}
-
-	ctx := context.Background()
-
-	// Write a secret
-	// _, err = client.KVv2("secret/hello").Put(ctx, "config", secretData)
-	// if err != nil {
-	// 	log.Printf("unable to write secret: %v", err)
-	// 	return
-	// }
-
-	log.Println("Secret written successfully.")
+	client.SetToken(token)
 
 	// Read a secret
-	secret, err := client.KVv2("secret/hello").Get(ctx, "config")
+	secret, err := client.KVv2("secret").Get(context.Background(), path)
 	if err != nil {
-		log.Printf("unable to read secret: %v", err)
-		return
+		sb.WriteString(fmt.Sprintf("unable to read secret: %v", err))
+		return sb.String()
 	}
 
-	value, ok := secret.Data["password"].(string)
-	if !ok {
-		log.Printf("value type assertion failed: %T %#v", secret.Data["password"], secret.Data["password"])
-		return
-	}
+	sb.WriteString(fmt.Sprintf("secret.Data: %v\n", secret.Data))
 
-	if value != secretData["password"] {
-		log.Printf("unexpected %q value %q retrieved from vault", secretData["password"], value)
-		return
-	}
-
-	log.Println("Access granted!")
-	log.Println("Stop Vault..")
+	sb.WriteString(fmt.Sprintln("Stop Vault.."))
+	return sb.String()
 }
 
-func HelloServer(w http.ResponseWriter, r *http.Request) {
-	log.Default().Printf("Request: %s\n", r.URL.Path[1:])
-	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+func readToken(path string) (string, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }

@@ -4,11 +4,12 @@ kind: ConfigMap
 metadata:
   name: hello-vault-agent-config
 data:
+  template.ctmpl: |
+    {{- with secret "secret/data/hello/config" -}}
+      username: {{ .Data.data.username }}, password: {{ .Data.data.password }}
+    {{- end -}}
   config-init.hcl: |
     exit_after_auth = true
-    vault {
-        address = "http://external-vault:8200"
-    }
 
     pid_file = "/home/vault/pidfile"
 
@@ -25,12 +26,14 @@ data:
                 mode = 0644
             }
         }
+    }
+
+    template {
+        destination = "/vault/secrets/config.txt"
+        source = "/vault/configs/template.ctmpl"
     }
   config.hcl: |
     exit_after_auth = false
-    vault {
-        address = "http://external-vault:8200"
-    }
 
     pid_file = "/home/vault/pidfile"
 
@@ -47,6 +50,11 @@ data:
                 mode = 0644
             }
         }
+    }
+
+    template {
+        destination = "/vault/secrets/config.txt"
+        source = "/vault/configs/template.ctmpl"
     }
 ---
 apiVersion: apps/v1
@@ -72,6 +80,9 @@ spec:
         - name: hello
           image: ko://github.com/bradbeck/ko-vault/cmd
           imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: http://external-vault:8200
           ports:
             - containerPort: 8080
 ---
