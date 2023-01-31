@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-vault-agent-config
+data:
+  config-init.hcl: |
+    exit_after_auth = true
+    vault {
+        address = "http://external-vault:8200"
+    }
+
+    pid_file = "/home/vault/pidfile"
+
+    auto_auth {
+        method "kubernetes" {
+            config = {
+                role = "hello"
+            }
+        }
+
+        sink "file" {
+            config = {
+                path = "/vault/secrets/token"
+                mode = 0644
+            }
+        }
+    }
+  config.hcl: |
+    exit_after_auth = false
+    vault {
+        address = "http://external-vault:8200"
+    }
+
+    pid_file = "/home/vault/pidfile"
+
+    auto_auth {
+        method "kubernetes" {
+            config = {
+                role = "hello"
+            }
+        }
+
+        sink "file" {
+            config = {
+                path = "/vault/secrets/token"
+                mode = 0644
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'hello'
+        vault.hashicorp.com/agent-configmap: 'hello-vault-agent-config'
+    spec:
+      serviceAccountName: internal-app
+      containers:
+        - name: hello
+          image: ko://github.com/bradbeck/ko-vault/cmd
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+spec:
+  selector:
+    app: hello
+  ports:
+    - protocol: TCP
+      port: 8080

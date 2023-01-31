@@ -43,7 +43,9 @@ http POST :8200/v1/auth/kubernetes/login jwt=$TOKEN_REVIEW_JWT role=hello
 colima start -c 6 -m 16 -k
 export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
 ko apply -f .
-k logs -l app=hello -f
+k logs -l app=hello -c hello -f --tail=-1
+k logs -l app=hello -c vault-agent-init -f --tail=-1
+k logs -l app=hello -c vault-agent -f --tail=-1
 k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:8080/Barney
 ```
 
