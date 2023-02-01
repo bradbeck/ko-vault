@@ -5,7 +5,7 @@ metadata:
   name: reader-vault-agent-config
 data:
   template.ctmpl: |
-    {{- with secret "secret/data/hello/config" -}}
+    {{- with secret "secret/data/reader/config" -}}
       username: {{ .Data.data.username }}, password: {{ .Data.data.password }}
     {{- end -}}
   config-init.hcl: |
@@ -20,7 +20,7 @@ data:
     auto_auth {
         method "kubernetes" {
             config = {
-                role = "hello"
+                role = "reader"
             }
         }
 
@@ -55,7 +55,7 @@ data:
     auto_auth {
         method "kubernetes" {
             config = {
-                role = "hello"
+                role = "reader"
             }
         }
 
@@ -95,18 +95,18 @@ spec:
       # annotations:
         # vault.hashicorp.com/agent-inject: 'true'
         # vault.hashicorp.com/namespace: 'default'
-        # vault.hashicorp.com/role: 'hello'
+        # vault.hashicorp.com/role: 'reader'
         # vault.hashicorp.com/agent-configmap: 'reader-vault-agent-config'
         # vault.hashicorp.com/agent-inject-token: 'true'
         # vault.hashicorp.com/agent-run-as-same-user: 'true' # Required for Vault agent to issue termination signal
         # vault.hashicorp.com/agent-cache-enable: 'true' # Use cached secrets and lease from vault-agent initialization to agent
-        # vault.hashicorp.com/agent-inject-secret-config.txt: 'secret/data/hello/config'
+        # vault.hashicorp.com/agent-inject-secret-config.txt: 'secret/data/reader/config'
         # vault.hashicorp.com/agent-inject-template-config.txt: |
-        #   {{- with secret "secret/data/hello/config" -}}
+        #   {{- with secret "secret/data/reader/config" -}}
         #   username: {{ .Data.data.username }}, password: {{ .Data.data.password }}
         #   {{- end -}}
     spec:
-      serviceAccountName: internal-app
+      serviceAccountName: vault-auth
       volumes:
         - name: config-init
           configMap:

@@ -75,7 +75,7 @@ spec:
         vault.hashicorp.com/role: 'hello'
         vault.hashicorp.com/agent-configmap: 'hello-vault-agent-config'
     spec:
-      serviceAccountName: internal-app
+      serviceAccountName: vault-auth
       containers:
         - name: hello
           image: ko://github.com/bradbeck/ko-vault/hello

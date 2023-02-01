@@ -25,11 +25,11 @@ func main() {
 	}
 	log.Println("Request: :8080/<name>")
 	log.Println("Listening on :8080...")
-	http.HandleFunc("/", HelloServer)
+	http.HandleFunc("/", ReaderServer)
 	http.ListenAndServe(":8080", nil)
 }
 
-func HelloServer(w http.ResponseWriter, r *http.Request) {
+func ReaderServer(w http.ResponseWriter, r *http.Request) {
 	log.Default().Printf("Request: %s\n", r.URL.Path[:])
 	fmt.Fprintf(w, "%s\n", read(r.URL.Path[:]))
 }
