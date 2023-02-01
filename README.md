@@ -1,13 +1,19 @@
-# KO Vault Service Example
+# KO Vault Agent Service Example
+
+```bash
+alias k=kubectl
+```
 
 ## Vault
 
 ```bash
 vault server -dev -dev-root-token-id root -dev-listen-address 0.0.0.0:8200
+```
+
+```bash
 export VAULT_ADDR='http://0.0.0.0:8200'
 vault login root
 colima start -c 6 -m 16 -k
-export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
 helm install vault hashicorp/vault --set "injector.externalVaultAddr=http://external-vault:8200"
@@ -39,14 +45,26 @@ http POST :8200/v1/auth/kubernetes/login jwt=$TOKEN_REVIEW_JWT role=hello
 
 ## KO
 
+### Hello Service
+
 ```bash
-colima start -c 6 -m 16 -k
 export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
-ko apply -f .
+ko apply -f hello
 k logs -l app=hello -c hello -f --tail=-1
 k logs -l app=hello -c vault-agent-init -f --tail=-1
 k logs -l app=hello -c vault-agent -f --tail=-1
 k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:8080/hello/config
+```
+
+### Reader Service
+
+```bash
+export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
+ko apply -f reader
+k logs -l app=reader -c reader -f --tail=-1
+k logs -l app=reader -c vault-agent -f --tail=-1
+k logs -l app=reader -c vault-agent-init -f --tail=-1
+k run httpie --image=alpine/httpie --rm -it --restart=Never -- reader-service:8080/vault/secrets/config.txt
 ```
 
 ## References
@@ -63,3 +81,4 @@ k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:808
 - <https://github.com/MikeDafi/Nielsen-Internship---React-Flask-Hashicorp-Vault/tree/main/vaulthelm/templates>
 - <https://github.com/openlab-red/hashicorp-vault-for-openshift/tree/master/examples/golang-example>
 - <https://github.com/ConsenSys/quorum-key-manager-helm/blob/main/templates/config-agents.yaml>
+- <https://medium.com/ww-engineering/working-with-vault-secrets-on-kubernetes-fde381137d88>

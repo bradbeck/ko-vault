@@ -78,7 +78,7 @@ spec:
       serviceAccountName: internal-app
       containers:
         - name: hello
-          image: ko://github.com/bradbeck/ko-vault/cmd
+          image: ko://github.com/bradbeck/ko-vault/hello
           imagePullPolicy: IfNotPresent
           env:
             - name: VAULT_ADDR
