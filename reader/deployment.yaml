@@ -9,7 +9,6 @@ data:
       username: {{ .Data.data.username }}, password: {{ .Data.data.password }}
     {{- end -}}
   config-init.hcl: |
-    # Comment this out if running as sidecar instead of initContainer
     exit_after_auth = true
     vault {
         address = "http://external-vault:8200"
@@ -44,7 +43,6 @@ data:
         source = "/vault/configs/template.ctmpl"
     }
   config.hcl: |
-    # Comment this out if running as sidecar instead of initContainer
     exit_after_auth = false
     vault {
         address = "http://external-vault:8200"
