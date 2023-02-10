@@ -48,7 +48,7 @@ func read(path string) string {
 		if err != nil {
 			sb.WriteString(fmt.Sprintf("error reading file %s: %v", path, err))
 		} else {
-			sb.WriteString(fmt.Sprintf("contents: %s", path))
+			sb.WriteString(fmt.Sprintf("contents: %s\n", path))
 			sb.WriteString(fmt.Sprintln(string(content)))
 			sb.WriteString(fmt.Sprintln("Stop read..."))
 		}
