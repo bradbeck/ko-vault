@@ -14,18 +14,22 @@ data:
     pid_file = "/home/vault/pidfile"
 
     auto_auth {
-        method "kubernetes" {
-            config = {
-                role = "hello"
-            }
+      method {
+        type = "kubernetes"
+        config = {
+          role = "hello"
         }
+      }
 
-        sink "file" {
-            config = {
-                path = "/vault/secrets/token"
-                mode = 0644
-            }
+      sinks {
+        sink {
+          type = "file"
+          config = {
+            path = "/vault/secrets/token"
+            mode = 0644
+          }
         }
+      }
     }
 
     template {
@@ -38,18 +42,22 @@ data:
     pid_file = "/home/vault/pidfile"
 
     auto_auth {
-        method "kubernetes" {
-            config = {
-                role = "hello"
-            }
+      method {
+        type = "kubernetes"
+        config = {
+          role = "hello"
         }
+      }
 
-        sink "file" {
-            config = {
-                path = "/vault/secrets/token"
-                mode = 0644
-            }
+      sinks {
+        sink {
+          type = "file"
+          config = {
+            path = "/vault/secrets/token"
+            mode = 0644
+          }
         }
+      }
     }
 
     template {

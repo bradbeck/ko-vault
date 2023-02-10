@@ -17,25 +17,30 @@ data:
     pid_file = "/home/vault/pidfile"
 
     auto_auth {
-        method "kubernetes" {
-            config = {
-                role = "reader"
-            }
+      method {
+        type = "kubernetes"
+        config = {
+          role = "reader"
+        }
+      }
+
+      sinks {
+        sink {
+          type = "file"
+          config = {
+            path = "/vault/secrets/token"
+            mode = 0644
+          }
         }
 
-        sink "file" {
-            config = {
-                path = "/vault/secrets/token"
-                mode = 0644
-            }
+        sink {
+          type = "file"
+          config = {
+            path = "/home/nonroot/.vault-token"
+            mode = 0644
+          }
         }
-
-        sink "file" {
-            config = {
-                path = "/home/nonroot/.vault-token"
-                mode = 0644
-            }
-        }
+      }
     }
 
     template {
@@ -51,25 +56,30 @@ data:
     pid_file = "/home/vault/pidfile"
 
     auto_auth {
-        method "kubernetes" {
-            config = {
-                role = "reader"
-            }
+      method {
+        type = "kubernetes"
+        config = {
+          role = "reader"
+        }
+      }
+
+      sinks {
+        sink {
+          type = "file"
+          config = {
+            path = "/vault/secrets/token"
+            mode = 0644
+          }
         }
 
-        sink "file" {
-            config = {
-                path = "/vault/secrets/token"
-                mode = 0644
-            }
+        sink {
+          type = "file"
+          config = {
+            path = "/home/nonroot/.vault-token"
+            mode = 0644
+          }
         }
-
-        sink "file" {
-            config = {
-                path = "/home/nonroot/.vault-token"
-                mode = 0644
-            }
-        }
+      }
     }
 
     template {
