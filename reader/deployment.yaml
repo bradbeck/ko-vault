@@ -47,44 +47,48 @@ data:
         destination = "/vault/secrets/config.txt"
         source = "/vault/configs/template.ctmpl"
     }
-  config.hcl: |
-    exit_after_auth = false
-    vault {
-        address = "http://external-vault:8200"
-    }
-
-    pid_file = "/home/vault/pidfile"
-
-    auto_auth {
-      method {
-        type = "kubernetes"
-        config = {
-          role = "reader"
-        }
-      }
-
-      sinks {
-        sink {
-          type = "file"
-          config = {
-            path = "/vault/secrets/token"
-            mode = 0644
+  config.json: |
+    {
+      "vault": {
+        "address": "http://external-vault:8200"
+      },
+      "pid_file": "/home/vault/pidfile",
+      "auto_auth": {
+        "method": [
+          {
+            "type": "kubernetes",
+            "config": {
+              "role": "reader"
+            }
           }
-        }
-
-        sink {
-          type = "file"
-          config = {
-            path = "/home/nonroot/.vault-token"
-            mode = 0644
+        ],
+        "sinks": [
+          {
+            "sink": {
+              "type": "file",
+              "config": {
+                "path": "/vault/secrets/token",
+                "mode": 420
+              }
+            }
+          },
+          {
+            "sink": {
+              "type": "file",
+              "config": {
+                "path": "/home/nonroot/.vault-token",
+                "mode": 420
+              }
+            }
           }
+        ]
+      },
+      "templates": [{
+        "template": {
+          "destination": "/vault/secrets/config.txt",
+          "source": "/vault/configs/template.ctmpl"
         }
-      }
-    }
-
-    template {
-        destination = "/vault/secrets/config.txt"
-        source = "/vault/configs/template.ctmpl"
+      }]
     }
 ---
 apiVersion: apps/v1
@@ -117,8 +121,8 @@ spec:
           configMap:
             name: reader-vault-agent-config
             items:
-              - key: config.hcl
-                path: config.hcl
+              - key: config.json
+                path: config.json
         - name: template
           configMap:
             name: reader-vault-agent-config
@@ -146,7 +150,7 @@ spec:
           image: vault
           args:
             - agent
-            - -config=/etc/vault/config.hcl
+            - -config=/etc/vault/config.json
             - -log-level=debug
           volumeMounts:
             - mountPath: /etc/vault
