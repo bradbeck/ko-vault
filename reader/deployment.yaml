@@ -54,34 +54,27 @@ data:
       },
       "pid_file": "/home/vault/pidfile",
       "auto_auth": {
-        "method": [
-          {
-            "type": "kubernetes",
+        "method": [{
+          "type": "kubernetes",
+          "config": {"role": "reader"}
+        }],
+        "sinks": [{
+          "sink": {
+            "type": "file",
             "config": {
-              "role": "reader"
+              "path": "/vault/secrets/token",
+              "mode": 420
             }
           }
-        ],
-        "sinks": [
-          {
-            "sink": {
-              "type": "file",
-              "config": {
-                "path": "/vault/secrets/token",
-                "mode": 420
-              }
-            }
-          },
-          {
-            "sink": {
-              "type": "file",
-              "config": {
-                "path": "/home/nonroot/.vault-token",
-                "mode": 420
-              }
+        },{
+          "sink": {
+            "type": "file",
+            "config": {
+              "path": "/home/nonroot/.vault-token",
+              "mode": 420
             }
           }
-        ]
+        }]
       },
       "templates": [{
         "template": {
