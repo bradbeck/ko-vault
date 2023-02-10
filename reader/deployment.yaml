@@ -32,7 +32,7 @@ data:
 
         sink "file" {
             config = {
-                path = "/vault/nonroot/.vault-token"
+                path = "/home/nonroot/.vault-token"
                 mode = 0644
             }
         }
@@ -66,7 +66,7 @@ data:
 
         sink "file" {
             config = {
-                path = "/vault/nonroot/.vault-token"
+                path = "/home/nonroot/.vault-token"
                 mode = 0644
             }
         }
@@ -129,7 +129,7 @@ spec:
               name: shared-data
             - mountPath: /vault/configs
               name: template
-            - mountPath: /vault/nonroot
+            - mountPath: /home/nonroot
               name: nonroot-home
       containers:
         - name: vault-agent
@@ -145,7 +145,7 @@ spec:
               name: shared-data
             - mountPath: /vault/configs
               name: template
-            - mountPath: /vault/nonroot
+            - mountPath: /home/nonroot
               name: nonroot-home
         - name: reader
           image: ko://github.com/bradbeck/ko-vault/reader
