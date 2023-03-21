@@ -26,7 +26,7 @@ Run a development Vault server with a specified dev root token.
 vault server -dev -dev-root-token-id root -dev-listen-address 0.0.0.0:8200
 ```
 
-In a separate shell go about starting a kubernetes cluster with [colima](https://github.com/abiosoft/colima) and configure
+In a separate shell start a kubernetes cluster with [colima](https://github.com/abiosoft/colima) and configure
 kubernetes authorization in Vault for that cluster.
 
 ```bash
