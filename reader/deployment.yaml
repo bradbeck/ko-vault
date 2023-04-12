@@ -84,6 +84,22 @@ data:
       }]
     }
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-config
+data:
+  DEMO_USERNAME: "DEMO_CONFIG_USERNAME"
+  DEMO_PASSWORD: "DEMO_CONFIG_PASSWORD"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-config-2
+data:
+  DEMO_USERNAME: "DEMO_CONFIG_USERNAME_2"
+  DEMO_PASSWORD: "DEMO_CONFIG_PASSWORD_2"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -122,6 +138,12 @@ spec:
             items:
               - key: template.ctmpl
                 path: template.ctmpl
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "vault-reader"
       initContainers:
         - name: vault-agent-init
           image: vault
@@ -155,6 +177,17 @@ spec:
             - mountPath: /home/nonroot
               name: nonroot-home
         - name: reader
+          env:
+            - name: DEMO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: demouser
+                  key: username
+            - name: DEMO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: demopass
+                  key: password
           image: ko://github.com/bradbeck/ko-vault/reader
           imagePullPolicy: IfNotPresent
           ports:
@@ -164,6 +197,9 @@ spec:
               name: shared-data
             - mountPath: /home/nonroot
               name: nonroot-home
+            - mountPath: "/mnt/secrets-store"
+              name: secrets-store-inline
+              readOnly: true
 ---
 apiVersion: v1
 kind: Service

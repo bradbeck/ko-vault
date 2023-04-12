@@ -1,0 +1,28 @@
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-reader
+spec:
+  provider: vault
+  secretObjects:
+    - secretName: demouser
+      type: Opaque
+      data:
+      - objectName: demo-user
+        key: username
+    - secretName: demopass
+      type: Opaque
+      data:
+      - objectName: demo-pass
+        key: password
+  parameters:
+    vaultAddress: "http://external-vault:8200"
+    roleName: "reader"
+    objects: |
+      - objectName: "demo-user"
+        secretPath: "secret/data/reader/config"
+        secretKey: "username"
+      - objectName: "demo-pass"
+        secretPath: "secret/data/reader/config"
+        secretKey: "password"

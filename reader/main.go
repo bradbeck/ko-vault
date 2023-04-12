@@ -16,6 +16,8 @@ func main() {
 	log.Printf("\n%s\n", read("/vault/secrets/token"))
 	log.Printf("\n%s\n", read("/home/nonroot/.vault-token"))
 	log.Printf("\n%s\n", read("/vault/secrets/config.txt"))
+	log.Printf("\n%s\n", read("/mnt/secrets-store/demo-user"))
+	log.Printf("\n%s\n", read("/mnt/secrets-store/demo-pass"))
 
 	user, err := user.Current()
 	if err != nil {
@@ -36,7 +38,10 @@ func ReaderServer(w http.ResponseWriter, r *http.Request) {
 
 func read(path string) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Start read: %s\n", path))
+	sb.WriteString(fmt.Sprintf("DEMO_USERNAME: %s\n", os.Getenv("DEMO_USERNAME")))
+	sb.WriteString(fmt.Sprintf("DEMO_PASSWORD: %s\n", os.Getenv("DEMO_PASSWORD")))
+	sb.WriteString(fmt.Sprintln())
+	sb.WriteString(fmt.Sprintf("***** %s\n", path))
 	info, err := os.Stat(path)
 	if err != nil {
 		sb.WriteString(fmt.Sprintf("error getting stats on file %s: %v", path, err))
@@ -50,7 +55,7 @@ func read(path string) string {
 		} else {
 			sb.WriteString(fmt.Sprintf("contents: %s\n", path))
 			sb.WriteString(fmt.Sprintln(string(content)))
-			sb.WriteString(fmt.Sprintln("Stop read..."))
+			sb.WriteString(fmt.Sprintln("*****"))
 		}
 	}
 	return sb.String()

@@ -33,9 +33,16 @@ kubernetes authorization in Vault for that cluster.
 export VAULT_ADDR='http://0.0.0.0:8200'
 vault login root
 colima start -c 6 -m 16 -k
+helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
-helm install vault hashicorp/vault --set "injector.externalVaultAddr=http://external-vault:8200"
+helm install csi secrets-store-csi-driver/secrets-store-csi-driver \
+    --set syncSecret.enabled=true
+helm install vault hashicorp/vault \
+  --set "server.enabled=false" \
+  --set "csi.enabled=true" \
+  --set "injector.enabled=true" \
+  --set "injector.externalVaultAddr=http://external-vault:8200"
 k apply -f external-vault.yaml
 k apply -f service-acct.yaml
 k run httpie --image=alpine/httpie --rm -it --restart=Never -- external-vault:8200
@@ -131,6 +138,7 @@ k run httpie --image=alpine/httpie --rm -it --restart=Never -- hello-service:808
 Deploy the `reader` application and use `rollout` to wait for it to deploy completely.
 
 ```bash
+k apply -f spc-vault-reader.yaml
 ko apply -f reader
 k rollout status deployment/reader-deployment
 ```
@@ -147,12 +155,16 @@ The `reader` service can be invoked.
 
 ```bash
 k run httpie --image=alpine/httpie --rm -it --restart=Never -- reader-service:8080/vault/secrets/config.txt
+k run httpie --image=alpine/httpie --rm -it --restart=Never -- reader-service:8080/mnt/secrets-store/demo-user
+k run httpie --image=alpine/httpie --rm -it --restart=Never -- reader-service:8080/mnt/secrets-store/demo-pass
 ```
 
 ## References
 
 - <https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-external-vault>
+- <https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-secret-store-driver>
 - <https://github.com/hashicorp/hello-vault-go>
+- <https://github.com/hashicorp/vault-csi-provider>
 - <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/annotations>
 - <https://developer.hashicorp.com/vault/docs/auth/kubernetes>
 - <https://developer.hashicorp.com/vault/docs/agent/autoauth>
@@ -160,7 +172,11 @@ k run httpie --image=alpine/httpie --rm -it --restart=Never -- reader-service:80
 - <https://developer.hashicorp.com/vault/tutorials/kubernetes/agent-kubernetes#start-vault-agent-with-auto-auth>
 - <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples>
 - <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples#configmap-example>
+- <https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples#environment-variable-example>
 - <https://github.com/MikeDafi/Nielsen-Internship---React-Flask-Hashicorp-Vault/tree/main/vaulthelm/templates>
 - <https://github.com/openlab-red/hashicorp-vault-for-openshift/tree/master/examples/golang-example>
 - <https://github.com/ConsenSys/quorum-key-manager-helm/blob/main/templates/config-agents.yaml>
 - <https://medium.com/ww-engineering/working-with-vault-secrets-on-kubernetes-fde381137d88>
+- <https://github.com/DaspawnW/vault-crd>
+- <https://banzaicloud.com/blog/inject-secrets-into-pods-vault-revisited/>
+- <https://secrets-store-csi-driver.sigs.k8s.io>
